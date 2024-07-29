@@ -1,4 +1,4 @@
-package com.chototclone.chototclone;
+package com.chototclone;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
