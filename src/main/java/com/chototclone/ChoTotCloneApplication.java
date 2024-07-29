@@ -8,7 +8,6 @@ public class ChoTotCloneApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ChoTotCloneApplication.class, args);
-        System.out.println("Đây là chức năng login đã hòoàn thành");
     }
 
 }
