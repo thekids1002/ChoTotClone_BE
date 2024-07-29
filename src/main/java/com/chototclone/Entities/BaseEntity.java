@@ -1,6 +1,7 @@
 package com.chototclone.Entities;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@MappedSuperclass
 public class BaseEntity {
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
@@ -24,6 +26,5 @@ public class BaseEntity {
     private Date updatedAt;
 
     @Column(name = "del_flg")
-    @Temporal(TemporalType.TIMESTAMP)
     private int delFlag;
 }
