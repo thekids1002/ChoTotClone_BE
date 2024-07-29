@@ -14,7 +14,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 @Table(name = "favorites")
-public class Favorite {
+public class Favorite extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,4 @@ public class Favorite {
     @JoinColumn(name = "listing_id", referencedColumnName = "listing_id")
     private Listing listing;
 
-    @Column(name = "added_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date addedDate;
 }
