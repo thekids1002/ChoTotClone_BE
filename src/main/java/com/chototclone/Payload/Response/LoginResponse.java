@@ -1,4 +1,4 @@
-package com.chototclone.Models.Response;
+package com.chototclone.Payload.Response;
 
 import lombok.*;
 
@@ -7,6 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuthResponse {
+public class LoginResponse {
     private String jwt;
 }
