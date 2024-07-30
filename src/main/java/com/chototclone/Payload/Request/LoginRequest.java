@@ -1,4 +1,4 @@
-package com.chototclone.Models.Request;
+package com.chototclone.Payload.Request;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AuthRequest {
-    private String username;
+public class LoginRequest {
+    private String email;
     private String password;
 }
