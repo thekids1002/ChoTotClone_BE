@@ -14,18 +14,18 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @Configuration
 public class AppConfig {
     @Bean
-    public UserDetailsService userDetailsService(){
-        UserDetails user=User.builder().username("prathiksha").password
+    public UserDetailsService userDetailsService() {
+        UserDetails user = User.builder().username("prathiksha").password
                 (passwordEncoder().encode("abc")).roles("ADMIN").build();
 
-        UserDetails user1=User.builder().username("pooja").password
+        UserDetails user1 = User.builder().username("pooja").password
                 (passwordEncoder().encode("123")).roles("ADMIN").build();
 
-        return new InMemoryUserDetailsManager(user,user1);
+        return new InMemoryUserDetailsManager(user, user1);
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
