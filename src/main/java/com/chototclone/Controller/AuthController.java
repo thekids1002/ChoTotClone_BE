@@ -1,15 +1,18 @@
 package com.chototclone.Controller;
 
-import com.chototclone.Utils.Util;
 import com.chototclone.Entities.User;
 import com.chototclone.JWT.JwtHelper;
 import com.chototclone.Payload.Request.LoginRequest;
+import com.chototclone.Payload.Request.RegisterRequest;
 import com.chototclone.Payload.Response.LoginResponse;
 import com.chototclone.Payload.Response.ReponseObject;
-import com.chototclone.Repository.UserRepository;
 import com.chototclone.Services.AuthService;
+import com.chototclone.Services.UserService;
+import com.chototclone.Utils.Message;
+import com.chototclone.Utils.Util;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +20,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -30,7 +35,7 @@ public class AuthController {
     private AuthService authService;
 
     @Autowired
-    private UserRepository UserRepository;
+    private UserService userService;
 
     @GetMapping("/test")
     String getAll() {
@@ -39,7 +44,7 @@ public class AuthController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<ReponseObject> login(@Valid @RequestBody LoginRequest request) {
-        User user = this.UserRepository.findByEmail(request.getEmail());
+        User user = this.userService.findByEmail(request.getEmail());
 
         ReponseObject reponseObject;
         reponseObject = ReponseObject.builder()
@@ -85,4 +90,36 @@ public class AuthController {
         return "Credentials Invalid !!";
     }
 
+    @PostMapping("/auth/register")
+    public ResponseEntity<ReponseObject> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        // Create ReponseObject with default value
+        ReponseObject responseObject = ReponseObject.builder()
+                .statusCode(HttpStatus.OK.value())
+                .build();
+
+        try {
+            // Construct User object from RegisterRequest
+            User newUser = new User();
+            newUser.setEmail(registerRequest.getEmail());
+            newUser.setPassword(registerRequest.getPassword());
+            newUser.setUserName(registerRequest.getName());
+
+            // Handle user creation and update ReponseObject
+            boolean isCreated = userService.createUser(newUser);
+            if (isCreated) {
+                responseObject.setMessage(Message.SUCCESS);
+                return new ResponseEntity<>(responseObject, HttpStatus.OK);
+            } else {
+                responseObject.setMessage(Message.FAIL);
+                responseObject.setStatusCode(HttpStatus.BAD_REQUEST.value());
+            }
+        } catch (DataIntegrityViolationException exception) {
+            responseObject = ReponseObject.builder()
+                    .message(Message.VALIDATION_ERRORS)
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .data(Map.of("email", Message.EMAIL_EXIST))
+                    .build();
+        }
+        return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
+    }
 }

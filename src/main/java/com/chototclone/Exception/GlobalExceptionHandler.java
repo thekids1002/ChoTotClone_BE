@@ -1,6 +1,7 @@
 package com.chototclone.Exception;
 
 import com.chototclone.Payload.Response.ReponseObject;
+import com.chototclone.Utils.Message;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -26,7 +27,7 @@ public class GlobalExceptionHandler {
         });
 
         ReponseObject responseObject = ReponseObject.builder()
-                .message("validation errors")
+                .message(Message.VALIDATION_ERRORS)
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .data(errors)
                 .build();

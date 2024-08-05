@@ -7,13 +7,13 @@ import org.hibernate.validator.constraints.Length;
 import java.util.Date;
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
 @ToString
+@Builder
 public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,8 +46,8 @@ public class User extends BaseEntity {
     @Column(name = "admin_flg")
     private int adminFlag = 0;
 
-    @Column(name = "user_flg")
-    private int userFlag = 0;
+    @Column(name = "user_flg", columnDefinition = "integer default 1")
+    private int userFlag = 1;
 
     @Column(name = "customer_flg")
     private int customerFlag = 0;
