@@ -1,6 +1,6 @@
 package com.chototclone.Controller;
 
-import Utils.Util;
+import com.chototclone.Utils.Util;
 import com.chototclone.Entities.User;
 import com.chototclone.JWT.JwtHelper;
 import com.chototclone.Payload.Request.LoginRequest;
@@ -8,6 +8,7 @@ import com.chototclone.Payload.Response.LoginResponse;
 import com.chototclone.Payload.Response.ReponseObject;
 import com.chototclone.Repository.UserRepository;
 import com.chototclone.Services.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<ReponseObject> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ReponseObject> login(@Valid @RequestBody LoginRequest request) {
         User user = this.UserRepository.findByEmail(request.getEmail());
 
         ReponseObject reponseObject;
