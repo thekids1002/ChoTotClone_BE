@@ -10,10 +10,28 @@ import java.util.Optional;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
+    /**
+     * Finds a category by its unique identifier.
+     *
+     * @param id The ID of the category to be retrieved.
+     * @return An Optional containing the Category if found, otherwise an empty Optional.
+     */
     Optional<Category> findById(long id);
 
+    /**
+     * Finds a category where the name contains the specified substring.
+     *
+     * @param name The substring to search for within the category names.
+     * @return An Optional containing the Category if found, otherwise an empty Optional.
+     */
     Optional<Category> findByNameContaining(String name);
 
+    /**
+     * Retrieves all categories.
+     *
+     * @return A list of all categories.
+     */
+    @Override
     List<Category> findAll();
 
 }

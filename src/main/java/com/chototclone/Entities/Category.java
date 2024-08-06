@@ -1,5 +1,6 @@
 package com.chototclone.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +20,7 @@ public class Category extends BaseEntity {
     @Column(name = "category_name")
     private String name;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "parrent_cate_gory", referencedColumnName = "category_id")
     private Category parentCategory;
