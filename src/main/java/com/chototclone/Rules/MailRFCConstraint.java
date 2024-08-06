@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MailRFCConstraint {
-    String message() default "Invalid email address";
+    String message() default "Invalid email format";
 
     Class<?>[] groups() default {};
 
