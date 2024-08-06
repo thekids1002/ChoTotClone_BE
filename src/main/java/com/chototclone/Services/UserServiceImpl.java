@@ -12,10 +12,9 @@ import java.util.Date;
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public User findByEmail(String email) {

@@ -4,7 +4,7 @@ import com.chototclone.Entities.User;
 
 public interface UserService {
 
-     User findByEmail(String email);
+    User findByEmail(String email);
 
-     boolean createUser(User user);
+    boolean createUser(User user);
 }

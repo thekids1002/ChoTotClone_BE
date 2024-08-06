@@ -33,6 +33,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/register"
                         ).permitAll().anyRequest()
                         .authenticated())
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(point))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
