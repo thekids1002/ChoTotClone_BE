@@ -23,11 +23,6 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/test")
-    String test() {
-        return "Ok";
-    }
-
     /**
      * Retrieves all categories and returns a response containing the list of category details.
      *
@@ -101,7 +96,7 @@ public class CategoryController {
 
         Category category = new Category();
         category.setName(createRequest.getName());
-        category.setParentCategory(parentCategory.isPresent() ? parentCategory.get() : null);
+        category.setParentCategory(parentCategory.orElse(null));
 
         boolean isCreated = categoryService.create(category);
         return getReponseObjectResponseEntity(createRequest, isCreated);
@@ -118,14 +113,13 @@ public class CategoryController {
         Optional<Category> parentCategory = Optional.empty();
         if (updateRequest.getParentCategoryId() != DefaultConst.DEFAULT_PARENT_CATEGORY) {
             long id = updateRequest.getParentCategoryId();
-            System.out.println("long id " + id);
             parentCategory = categoryService.getById(id);
         }
 
         Category category = new Category();
         category.setId(updateRequest.getId());
         category.setName(updateRequest.getName());
-        category.setParentCategory(parentCategory.isPresent() ? parentCategory.get() : null);
+        category.setParentCategory(parentCategory.orElse(null));
         boolean isCreated = categoryService.update(category);
         return getReponseObjectResponseEntity(updateRequest, isCreated);
     }
@@ -185,5 +179,35 @@ public class CategoryController {
         response.setName(category.getName());
         response.setParentCategoryId(category.getParentCategory() != null ? category.getParentCategory().getId() : null);
         return response;
+    }
+
+    /**
+     * Handles the request to retrieve all categories that have a specific parent category ID.
+     * Builds a response object with the list of categories or an error message if an exception occurs.
+     *
+     * @param parentCategoryId The ID of the parent category to filter categories by.
+     * @return ResponseEntity containing the ReponseObject with status, message, and data.
+     */
+
+    @GetMapping("/getAllCategory/{parentCategoryId}")
+    public ResponseEntity<ReponseObject> getAllByParentCategoryId(@PathVariable Long parentCategoryId) {
+        HttpStatus status = HttpStatus.CREATED;
+        String message = Message.SUCCESS;
+        ReponseObject reponseObject = ReponseObject.builder()
+                .statusCode(status.value())
+                .message(message)
+                .data(null)
+                .build();
+        try {
+            List<Category> categoryList = this.categoryService.getAllByParentCategoryId(parentCategoryId);
+            List<CategoryResponse> categoryResponses = categoryList.stream()
+                    .map(this::convertToResponse)
+                    .toList();
+            reponseObject.setData(categoryResponses);
+            return new ResponseEntity<>(reponseObject, status);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(reponseObject, status);
+        }
     }
 }

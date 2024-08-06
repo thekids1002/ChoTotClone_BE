@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateRequest {
     @NotBlank(message = "Name is required")
-    @Size(max = 255, message = "Name cannot exceed 255 characters")
+    @Size(max = 255, message = "Name must be at most 255 characters long")
     private String name;
 
     @NotNull(message = "Parent category ID is required")

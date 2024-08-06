@@ -31,7 +31,13 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
      *
      * @return A list of all categories.
      */
-    @Override
     List<Category> findAll();
 
+    /**
+     * Finds all categories with the specified parent category ID.
+     *
+     * @param parentCategoryId The ID of the parent category.
+     * @return A list of categories that have the specified parent category.
+     */
+    List<Category> findAllByParentCategoryId(long parentCategoryId);
 }

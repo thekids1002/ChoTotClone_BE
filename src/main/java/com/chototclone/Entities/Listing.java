@@ -60,11 +60,5 @@ public class Listing extends BaseEntity {
     @OneToMany(mappedBy = "listing")
     private Set<Favorite> favorites;
 
-    public enum Status {
-        ACTIVE,
-        INACTIVE,
-        SOLD
-    }
-
 
 }

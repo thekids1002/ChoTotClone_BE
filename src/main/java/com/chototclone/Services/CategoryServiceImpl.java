@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -33,17 +34,22 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getAllByParentCategoryId(long id) {
-        return List.of();
+        return categoryRepository.findAllByParentCategoryId(id);
     }
 
     @Override
     public boolean create(Category createCategory) {
-        Category category = new Category();
-        category.setName(createCategory.getName());
-        category.setParentCategory(createCategory.getParentCategory());
-        category.setCreatedAt(new Date(System.currentTimeMillis()));
-        category.setUpdatedAt(new Date(System.currentTimeMillis()));
-        return categoryRepository.save(category).getId() != null;
+        try {
+            Category category = new Category();
+            category.setName(createCategory.getName());
+            category.setParentCategory(createCategory.getParentCategory());
+            category.setCreatedAt(new Date(System.currentTimeMillis()));
+            category.setUpdatedAt(new Date(System.currentTimeMillis()));
+            return categoryRepository.save(category).getId() != null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
