@@ -1,4 +1,5 @@
 package com.chototclone.Payload.Response;
+
 import lombok.*;
 
 @Setter

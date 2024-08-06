@@ -1,16 +1,15 @@
 package com.chototclone.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@ToString
 @Table(schema = "categories")
 public class Category extends BaseEntity {
     @Id
@@ -21,6 +20,7 @@ public class Category extends BaseEntity {
     @Column(name = "category_name")
     private String name;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "parrent_cate_gory", referencedColumnName = "category_id")
     private Category parentCategory;
