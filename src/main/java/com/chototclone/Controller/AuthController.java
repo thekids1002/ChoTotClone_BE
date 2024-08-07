@@ -26,8 +26,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1")
 public class AuthController {
+
     @Autowired
     private AuthenticationManager manager;
+
     @Autowired
     private JwtHelper helper;
 
@@ -123,6 +125,12 @@ public class AuthController {
         return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Activates a user account using the provided activation token.
+     *
+     * @param entryToken
+     * @return a `ResponseEntity` containing the result of the activation process
+     */
     @GetMapping("/auth/active")
     public ResponseEntity<ReponseObject> activeUser(@RequestParam String entryToken) {
 

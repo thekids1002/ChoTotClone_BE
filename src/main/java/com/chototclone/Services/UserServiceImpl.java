@@ -33,6 +33,12 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    /**
+     * Creates a new user and sends an activation email.
+     *
+     * @param user the user to be created
+     * @return true if the user was successfully created and activation email sent, false otherwise
+     */
     @Transactional
     @Override
     public boolean createUser(User user) {
@@ -43,7 +49,7 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedAt(new Date(currentTime));
 
         String entryToken = StringUtil.generateRandomString(DefaultConst.DEFAULT_NUMBER_CHARACTER_TOKEN);
-        boolean isSentMail = emailService.sendActivationEmail(user.getEmail(), entryToken);
+        boolean isSentMail = emailService.sendActivationEmail(user.getEmail(), entryToken, true);
 
         if (isSentMail) {
             user.setEntryToken(entryToken);

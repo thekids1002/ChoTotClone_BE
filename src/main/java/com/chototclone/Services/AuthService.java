@@ -21,6 +21,12 @@ public class AuthService implements UserDetailsService {
     @Autowired
     private UserRepository repository;
 
+    /**
+     * Loads a user by their email (username) for authentication.
+     *
+     * @param username the email of the user to be loaded
+     * @return a `UserDetails` object containing the user's information
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         com.chototclone.Entities.User user = repository.findByEmail(username);
@@ -32,6 +38,12 @@ public class AuthService implements UserDetailsService {
                 .build();
     }
 
+    /**
+     * Activates a user account based on the provided activation token.
+     *
+     * @param entryToken the activation token used to find and activate the user
+     * @return true if the user was successfully activated, false otherwise
+     */
     @Transactional
     public boolean activeUser(String entryToken) {
         try {
