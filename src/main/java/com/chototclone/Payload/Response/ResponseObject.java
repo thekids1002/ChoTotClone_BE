@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReponseObject {
+public class ResponseObject {
     private String message;
     private int statusCode;
     private Object data;

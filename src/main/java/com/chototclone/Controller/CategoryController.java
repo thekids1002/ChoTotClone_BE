@@ -5,7 +5,7 @@ import com.chototclone.Entities.Category;
 import com.chototclone.Payload.Request.Category.CreateRequest;
 import com.chototclone.Payload.Request.Category.UpdateRequest;
 import com.chototclone.Payload.Response.Category.CategoryResponse;
-import com.chototclone.Payload.Response.ReponseObject;
+import com.chototclone.Payload.Response.ResponseObject;
 import com.chototclone.Services.CategoryService;
 import com.chototclone.Utils.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class CategoryController {
      * @return ResponseEntity containing the response object with a list of all categories and a success message.
      */
     @GetMapping({"", "/"})
-    public ResponseEntity<ReponseObject> getAll() {
+    public ResponseEntity<ResponseObject> getAll() {
         List<Category> categories = categoryService.getAll();
         List<CategoryResponse> categoryResponses = categories.stream()
                 .map(this::convertToResponse)
@@ -38,7 +38,7 @@ public class CategoryController {
         HttpStatus status = HttpStatus.OK;
         String message = Message.SUCCESS;
 
-        ReponseObject responseObject = ReponseObject.builder()
+        ResponseObject responseObject = ResponseObject.builder()
                 .message(message)
                 .statusCode(status.value())
                 .data(categoryResponses)
@@ -55,7 +55,7 @@ public class CategoryController {
      * @return ResponseEntity containing the response object with the category details or an error message.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ReponseObject> getCategoryById(@PathVariable Long id) {
+    public ResponseEntity<ResponseObject> getCategoryById(@PathVariable Long id) {
         Optional<Category> categoryOpt = categoryService.getById(id);
         CategoryResponse categoryResponse;
 
@@ -72,7 +72,7 @@ public class CategoryController {
             data = categoryResponse;
         }
 
-        ReponseObject responseObject = ReponseObject.builder()
+        ResponseObject responseObject = ResponseObject.builder()
                 .message(message)
                 .statusCode(status.value())
                 .data(data)
@@ -88,7 +88,7 @@ public class CategoryController {
      * @return ResponseEntity containing the response object with the result of the creation operation.
      */
     @PostMapping("/create")
-    public ResponseEntity<ReponseObject> createCategory(@RequestBody CreateRequest createRequest) {
+    public ResponseEntity<ResponseObject> createCategory(@RequestBody CreateRequest createRequest) {
         Optional<Category> parentCategory = Optional.empty();
         if (createRequest.getParentCategoryId() != DefaultConst.DEFAULT_PARENT_CATEGORY) {
             parentCategory = categoryService.getById(createRequest.getParentCategoryId());
@@ -109,7 +109,7 @@ public class CategoryController {
      * @return ResponseEntity containing the response object with the result of the update operation.
      */
     @PostMapping("/update")
-    public ResponseEntity<ReponseObject> updateCategory(@RequestBody UpdateRequest updateRequest) {
+    public ResponseEntity<ResponseObject> updateCategory(@RequestBody UpdateRequest updateRequest) {
         Optional<Category> parentCategory = Optional.empty();
         if (updateRequest.getParentCategoryId() != DefaultConst.DEFAULT_PARENT_CATEGORY) {
             long id = updateRequest.getParentCategoryId();
@@ -131,12 +131,12 @@ public class CategoryController {
      * @return ResponseEntity containing the response with a message, HTTP status code, and data.
      */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ReponseObject> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<ResponseObject> deleteCategory(@PathVariable Long id) {
         boolean isDeleted = categoryService.delete(id);
         HttpStatus httpStatus = isDeleted ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
         String message = isDeleted ? Message.SUCCESS : Message.FAIL;
 
-        ReponseObject responseObject = ReponseObject.builder()
+        ResponseObject responseObject = ResponseObject.builder()
                 .message(message)
                 .statusCode(httpStatus.value())
                 .data(null)
@@ -153,12 +153,12 @@ public class CategoryController {
      * @param isCreatedOrUpdated Indicates whether the creation or update operation was successful.
      * @return ResponseEntity containing the constructed ReponseObject with the result of the operation.
      */
-    private ResponseEntity<ReponseObject> getReponseObjectResponseEntity(@RequestBody CreateRequest request, boolean isCreatedOrUpdated) {
+    private ResponseEntity<ResponseObject> getReponseObjectResponseEntity(@RequestBody CreateRequest request, boolean isCreatedOrUpdated) {
         HttpStatus status = isCreatedOrUpdated ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
         String message = isCreatedOrUpdated ? Message.SUCCESS : Message.FAIL;
         Object data = isCreatedOrUpdated ? request : null;
 
-        ReponseObject responseObject = ReponseObject.builder()
+        ResponseObject responseObject = ResponseObject.builder()
                 .message(message)
                 .statusCode(status.value())
                 .data(data)
@@ -190,10 +190,10 @@ public class CategoryController {
      */
 
     @GetMapping("/getAllCategory/{parentCategoryId}")
-    public ResponseEntity<ReponseObject> getAllByParentCategoryId(@PathVariable Long parentCategoryId) {
+    public ResponseEntity<ResponseObject> getAllByParentCategoryId(@PathVariable Long parentCategoryId) {
         HttpStatus status = HttpStatus.CREATED;
         String message = Message.SUCCESS;
-        ReponseObject reponseObject = ReponseObject.builder()
+        ResponseObject reponseObject = ResponseObject.builder()
                 .statusCode(status.value())
                 .message(message)
                 .data(null)

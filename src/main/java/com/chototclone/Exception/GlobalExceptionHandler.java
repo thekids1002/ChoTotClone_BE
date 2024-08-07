@@ -1,6 +1,6 @@
 package com.chototclone.Exception;
 
-import com.chototclone.Payload.Response.ReponseObject;
+import com.chototclone.Payload.Response.ResponseObject;
 import com.chototclone.Utils.Message;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
-        ReponseObject responseObject = ReponseObject.builder()
+        ResponseObject responseObject = ResponseObject.builder()
                 .message(Message.VALIDATION_ERRORS)
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .data(errors)

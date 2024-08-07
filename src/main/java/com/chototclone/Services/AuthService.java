@@ -39,31 +39,34 @@ public class AuthService implements UserDetailsService {
     }
 
     /**
-     * Activates a user account based on the provided activation token.
+     * Activates a user account
      *
-     * @param entryToken the activation token used to find and activate the user
+     * @param user
      * @return true if the user was successfully activated, false otherwise
      */
     @Transactional
-    public boolean activeUser(String entryToken) {
+    public boolean activeUser(com.chototclone.Entities.User user) {
         try {
-            Optional<com.chototclone.Entities.User> optionalUser = Optional.ofNullable(repository.findByEntryToken(entryToken));
-
-            if (optionalUser.isEmpty()) {
-                return false;
-            }
-
-            com.chototclone.Entities.User user = optionalUser.get();
 
             if (user.getMemberStatus() != DefaultConst.USER_ACTIVE) {
                 user.setMemberStatus(DefaultConst.USER_ACTIVE);
                 repository.save(user);
             }
-
             return true;
         } catch (Exception e) {
-            logger.error("Error activating user with token: {}", entryToken, e);
+            logger.error("Error activating user with token: {}", user.getEntryToken(), e);
             return false;
         }
     }
+
+    /**
+     * Finds a user by the given entry token.
+     *
+     * @param entryToken The user's entry token.
+     * @return An Optional containing the user if found, otherwise an empty Optional.
+     */
+    public Optional<com.chototclone.Entities.User> findUserByToken(String entryToken) {
+        return Optional.ofNullable(repository.findByEntryToken(entryToken));
+    }
+
 }
