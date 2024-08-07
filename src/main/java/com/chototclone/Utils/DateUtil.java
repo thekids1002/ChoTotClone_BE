@@ -110,4 +110,23 @@ public class DateUtil {
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(format);
         return sdf.parse(dateString);
     }
+    /**
+     * Compares two Date objects to determine which one is "greater".
+     *
+     * @param date1 The first Date object
+     * @param date2 The second Date object
+     * @return -1 if date1 is before date2
+     *         1 if date1 is after date2
+     *         0 if date1 is equal to date2
+     * @throws IllegalArgumentException if either date1 or date2 is null
+     */
+    public static int compareDates(Date date1, Date date2) {
+        if (date1 == null || date2 == null) {
+            throw new IllegalArgumentException("Dates cannot be null");
+        }
+
+        return date1.compareTo(date2);
+    }
+
+
 }

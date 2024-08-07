@@ -5,9 +5,11 @@ import com.chototclone.JWT.JwtHelper;
 import com.chototclone.Payload.Request.LoginRequest;
 import com.chototclone.Payload.Request.RegisterRequest;
 import com.chototclone.Payload.Response.LoginResponse;
-import com.chototclone.Payload.Response.ReponseObject;
+import com.chototclone.Payload.Response.ResponseBuilder;
+import com.chototclone.Payload.Response.ResponseObject;
 import com.chototclone.Services.AuthService;
 import com.chototclone.Services.UserService;
+import com.chototclone.Utils.DateUtil;
 import com.chototclone.Utils.Message;
 import com.chototclone.Utils.Util;
 import jakarta.validation.Valid;
@@ -21,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.Map;
 
 @RestController
@@ -45,11 +48,11 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<ReponseObject> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<ResponseObject> login(@Valid @RequestBody LoginRequest request) {
         User user = this.userService.findByEmail(request.getEmail());
 
-        ReponseObject reponseObject;
-        reponseObject = ReponseObject.builder()
+        ResponseObject responseObject;
+        responseObject = ResponseObject.builder()
                 .message("Fail")
                 .statusCode(HttpStatus.FORBIDDEN.value())
                 .data(null)
@@ -66,15 +69,15 @@ public class AuthController {
                     .refreshToken(refreshToken)
                     .expiresIn(System.currentTimeMillis() + helper.getJWT_TOKEN_VALIDITY_ACCESSTOKEN() * 1000)
                     .build();
-            reponseObject = ReponseObject.builder()
+            responseObject = ResponseObject.builder()
                     .message("Success")
                     .statusCode(HttpStatus.OK.value())
                     .data(response)
                     .build();
-            return new ResponseEntity<>(reponseObject, HttpStatus.OK);
+            return new ResponseEntity<>(responseObject, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(reponseObject, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(responseObject, HttpStatus.FORBIDDEN);
     }
 
     private void doAuthenticate(String email, String password) {
@@ -93,9 +96,9 @@ public class AuthController {
     }
 
     @PostMapping("/auth/register")
-    public ResponseEntity<ReponseObject> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        // Create ReponseObject with default value
-        ReponseObject responseObject = ReponseObject.builder()
+    public ResponseEntity<ResponseObject> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        // Create ReposeObject with default value
+        ResponseObject responseObject = ResponseObject.builder()
                 .statusCode(HttpStatus.OK.value())
                 .build();
 
@@ -106,7 +109,7 @@ public class AuthController {
             newUser.setPassword(registerRequest.getPassword());
             newUser.setUserName(registerRequest.getName());
 
-            // Handle user creation and update ReponseObject
+            // Handle user creation and update ResponseObject
             boolean isCreated = userService.createUser(newUser);
             if (isCreated) {
                 responseObject.setMessage(Message.SUCCESS);
@@ -116,7 +119,7 @@ public class AuthController {
                 responseObject.setStatusCode(HttpStatus.BAD_REQUEST.value());
             }
         } catch (DataIntegrityViolationException exception) {
-            responseObject = ReponseObject.builder()
+            responseObject = ResponseObject.builder()
                     .message(Message.VALIDATION_ERRORS)
                     .statusCode(HttpStatus.BAD_REQUEST.value())
                     .data(Map.of("email", Message.EMAIL_EXIST))
@@ -126,25 +129,36 @@ public class AuthController {
     }
 
     /**
-     * Activates a user account using the provided activation token.
+     * Activates a user based on the provided entry token.
      *
-     * @param entryToken
-     * @return a `ResponseEntity` containing the result of the activation process
+     * @param entryToken The token used to identify the user.
+     * @return A ResponseEntity containing the result of the activation process.
      */
     @GetMapping("/auth/active")
-    public ResponseEntity<ReponseObject> activeUser(@RequestParam String entryToken) {
+    public ResponseEntity<ResponseObject> activeUser(@Valid @RequestParam String entryToken) {
+        if (entryToken == null || entryToken.trim().isEmpty()) {
+            return ResponseBuilder.createBadRequestResponse("Missing entry token");
+        }
 
-        boolean isActive = authService.activeUser(entryToken);
+        User user = authService.findUserByToken(entryToken)
+                .orElse(null);
 
-        HttpStatus httpStatus = isActive ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
-        String message = isActive ? Message.SUCCESS : Message.FAIL;
+        if (user == null) {
+            return ResponseBuilder.createNotFoundResponse("User not found");
+        }
 
-        ReponseObject responseObject = ReponseObject.builder()
-                .data(null)
-                .statusCode(httpStatus.value())
-                .message(message)
-                .build();
+        Date currentDate = new Date();
 
-        return new ResponseEntity<>(responseObject, httpStatus);
+        if (DateUtil.compareDates(user.getEntryTokenExpire(), currentDate) < 0) {
+            return ResponseBuilder.createBadRequestResponse("Expired entry token");
+        }
+
+        boolean isActive = authService.activeUser(user);
+
+        return ResponseBuilder.createEmptyResponse(
+                isActive ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR,
+                isActive ? Message.SUCCESS : Message.FAIL
+        );
     }
+
 }
