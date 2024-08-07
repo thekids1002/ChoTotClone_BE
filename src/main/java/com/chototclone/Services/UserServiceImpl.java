@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedAt(new Date(currentTime));
 
         String entryToken = StringUtil.generateRandomString(DefaultConst.DEFAULT_NUMBER_CHARACTER_TOKEN);
-        boolean isSentMail = emailService.sendActivationEmail(user.getEmail(), entryToken, true);
+        boolean isSentMail = emailService.sendActivationEmail(user.getEmail(), entryToken);
 
         if (isSentMail) {
             user.setEntryToken(entryToken);
