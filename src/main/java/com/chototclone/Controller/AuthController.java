@@ -122,4 +122,21 @@ public class AuthController {
         }
         return new ResponseEntity<>(responseObject, HttpStatus.BAD_REQUEST);
     }
+
+    @GetMapping("/auth/active")
+    public ResponseEntity<ReponseObject> activeUser(@RequestParam String entryToken) {
+
+        boolean isActive = authService.activeUser(entryToken);
+
+        HttpStatus httpStatus = isActive ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
+        String message = isActive ? Message.SUCCESS : Message.FAIL;
+
+        ReponseObject responseObject = ReponseObject.builder()
+                .data(null)
+                .statusCode(httpStatus.value())
+                .message(message)
+                .build();
+
+        return new ResponseEntity<>(responseObject, httpStatus);
+    }
 }

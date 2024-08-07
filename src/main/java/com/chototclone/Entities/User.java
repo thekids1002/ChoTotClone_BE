@@ -60,4 +60,14 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private Set<Favorite> favorites;
+
+    @Column(name = "member_status", columnDefinition = "integer default 0")
+    private int memberStatus;
+
+    @Column(name = "entry_token")
+    @Length(max = 8)
+    private String entryToken;
+
+    @Column(name = "entry_token_expire")
+    private Date entryTokenExpire;
 }
