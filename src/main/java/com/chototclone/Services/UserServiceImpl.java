@@ -44,10 +44,6 @@ public class UserServiceImpl implements UserService {
     public boolean createUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        long currentTime = System.currentTimeMillis();
-        user.setCreatedAt(new Date(currentTime));
-        user.setUpdatedAt(new Date(currentTime));
-
         String entryToken = StringUtil.generateRandomString(DefaultConst.DEFAULT_NUMBER_CHARACTER_TOKEN);
         boolean isSentMail = emailService.sendActivationEmail(user.getEmail(), entryToken);
 

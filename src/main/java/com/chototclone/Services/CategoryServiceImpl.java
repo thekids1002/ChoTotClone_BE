@@ -42,8 +42,6 @@ public class CategoryServiceImpl implements CategoryService {
             Category category = new Category();
             category.setName(createCategory.getName());
             category.setParentCategory(createCategory.getParentCategory());
-            category.setCreatedAt(new Date(System.currentTimeMillis()));
-            category.setUpdatedAt(new Date(System.currentTimeMillis()));
             return categoryRepository.save(category).getId() != null;
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,7 +63,6 @@ public class CategoryServiceImpl implements CategoryService {
         Category existingCategory = existingCategoryOpt.get();
         existingCategory.setName(updatedCategory.getName());
         existingCategory.setParentCategory(updatedCategory.getParentCategory());
-        existingCategory.setUpdatedAt(new Date(System.currentTimeMillis()));
 
         try {
             categoryRepository.save(existingCategory);
