@@ -1,9 +1,6 @@
 package com.chototclone.Entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,4 +24,20 @@ public class BaseEntity {
 
     @Column(name = "del_flg")
     private int delFlag;
+
+
+    @PrePersist
+    protected void onCreate() {
+//        createdAt = LocalDateTime.now(); Temporary comment, will use later
+        if (createdAt == null) {
+            createdAt = new Date(System.currentTimeMillis());
+            updatedAt = new Date(System.currentTimeMillis());
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+//        updatedAt = LocalDateTime.now(); Temporary comment, will use later
+        updatedAt = new Date(System.currentTimeMillis());
+    }
 }
