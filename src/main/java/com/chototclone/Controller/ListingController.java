@@ -2,6 +2,7 @@ package com.chototclone.Controller;
 
 import com.chototclone.Entities.Listing;
 import com.chototclone.Payload.Request.Listing.CreateRequest;
+import com.chototclone.Payload.Request.Listing.UpdateRequest;
 import com.chototclone.Payload.Response.ResponseObject;
 import com.chototclone.Services.ListingService;
 import com.chototclone.Utils.Message;
@@ -99,8 +100,21 @@ public class ListingController {
     }
 
     @RequestMapping("/update")
-    public ResponseEntity<?> update() {
-        return null;
+    public ResponseEntity<?> update(
+            @RequestParam("files") MultipartFile[] files,
+            @Valid @RequestParam("form") UpdateRequest updateRequest
+    ) {
+
+        Listing listing = listingService.update(files, updateRequest);
+        boolean isUpdated = Objects.nonNull(listing);
+        HttpStatus httpStatus = isUpdated ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
+        String message = isUpdated ? Message.SUCCESS : Message.INTERNAL_SERVER_ERROR;
+        return new ResponseEntity<>(ResponseObject
+                .builder()
+                .message(message)
+                .statusCode(httpStatus.value())
+                .data(listing)
+                .build(), httpStatus);
     }
 
     @RequestMapping("/delete")

@@ -3,6 +3,7 @@ package com.chototclone.Services;
 import com.chototclone.Constant.DefaultConst;
 import com.chototclone.Entities.*;
 import com.chototclone.Payload.Request.Listing.CreateRequest;
+import com.chototclone.Payload.Request.Listing.UpdateRequest;
 import com.chototclone.Repository.BranhRepository;
 import com.chototclone.Repository.CategoryRepository;
 import com.chototclone.Repository.ImageRepository;
@@ -14,15 +15,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 public class ListingServiceImpl implements ListingService {
 
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
+    private static final String UPLOADED_FOLDER = "/uploads";
 
     @Autowired
     private ListingRepository listingRepository;
@@ -43,7 +52,7 @@ public class ListingServiceImpl implements ListingService {
      * @return an {@link Optional} containing the listing if found, or empty if not
      */
     @Override
-    public Optional<Listing> getById(Long id) {
+    public Optional<Listing> findById(Long id) {
         return listingRepository.findById(id);
     }
 
@@ -53,7 +62,7 @@ public class ListingServiceImpl implements ListingService {
      * @return a {@link List} of all listings
      */
     @Override
-    public List<Listing> getAll() {
+    public List<Listing> findAll() {
         return listingRepository.findAll();
     }
 
@@ -85,14 +94,7 @@ public class ListingServiceImpl implements ListingService {
 
             // Create a new Listing and set its properties
             Listing newListing = new Listing();
-            newListing.setCategory(category);
-            newListing.setBrand(brand);
-            newListing.setTitle(listingRequest.getTitle());
-            newListing.setDescription(listingRequest.getDescription());
-            newListing.setPrice(listingRequest.getPrice());
-            newListing.setLocation(listingRequest.getLocation());
-            newListing.setExpiryDate(DateUtil.addDays(DefaultConst.EXPRIRED_DATE_LISTING));
-            newListing.setStatus(Status.ACTIVE);
+            initializeListing(true, category, brand, newListing, listingRequest.getTitle(), listingRequest.getDescription(), listingRequest.getPrice(), listingRequest.getLocation());
 
             // Save the new Listing
             newListing = listingRepository.save(newListing);
@@ -110,6 +112,55 @@ public class ListingServiceImpl implements ListingService {
             logger.error("Failed to create listing :", e.getMessage(), e);
             return null;
         }
+    }
+
+    @Override
+    @Transactional
+    public Listing update(MultipartFile[] files, UpdateRequest updateRequest) {
+
+        Listing updateListing = listingRepository.findById(updateRequest.getListingId())
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + updateRequest.getCategoryId()));
+        ;
+
+        if (updateListing.getImages().size() >= 6) {
+            return null;
+        }
+        // Fetch the Category by ID, throwing an exception if not found
+        Category category = categoryRepository.findById(updateRequest.getCategoryId())
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + updateRequest.getCategoryId()));
+
+        // Fetch the Brand by ID, throwing an exception if not found
+        Brand brand = brandRepository.findById(updateRequest.getBrandId())
+                .orElseThrow(() -> new EntityNotFoundException("Brand not found with ID: " + updateRequest.getBrandId()));
+
+        // Create a new Listing and set its properties
+
+        initializeListing(false, category, brand, updateListing, updateRequest.getTitle(), updateRequest.getDescription(), updateRequest.getPrice(), updateRequest.getLocation());
+
+        List<String> imagesNew = new ArrayList<>();
+        long currentMillis = System.currentTimeMillis();
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                continue;
+            }
+            try {
+                // Lưu file vào thư mục
+                String fileName = file.getOriginalFilename() + currentMillis;
+                byte[] bytes = file.getBytes();
+                Path path = Paths.get(UPLOADED_FOLDER + fileName);
+                Files.write(path, bytes);
+                imagesNew.add(fileName);
+            } catch (Exception e) {
+
+            }
+        }
+        // update image to database
+        List<Image> imageList = buildImages(updateListing.getId(), imagesNew);
+        imageRepository.saveAll(imageList);
+        updateListing.getImages().addAll(imageList);
+        // Save the updated listing to the database
+
+        return listingRepository.save(updateListing);
     }
 
     /**
@@ -131,13 +182,30 @@ public class ListingServiceImpl implements ListingService {
     /**
      * Updates an existing listing in the database.
      *
-     * @param listing the listing to be updated
      * @return the updated listing
      */
-    @Override
-    public Listing update(Listing listing) {
-        // Save the updated listing to the database
-        return listingRepository.save(listing);
+
+
+    private void initializeListing(
+            boolean isCreate,
+            Category category,
+            Brand brand,
+            Listing newListing,
+            String title,
+            String description,
+            BigDecimal price,
+            String location
+    ) {
+        newListing.setCategory(category);
+        newListing.setBrand(brand);
+        newListing.setTitle(title);
+        newListing.setDescription(description);
+        newListing.setPrice(price);
+        newListing.setLocation(location);
+        if (isCreate) {
+            newListing.setExpiryDate(DateUtil.addDays(DefaultConst.EXPRIRED_DATE_LISTING));
+        }
+        newListing.setStatus(Status.ACTIVE);
     }
 
     /**
@@ -156,4 +224,5 @@ public class ListingServiceImpl implements ListingService {
         // Save the updated listing to the repository
         listingRepository.save(listing);
     }
+
 }
