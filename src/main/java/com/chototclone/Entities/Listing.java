@@ -1,10 +1,7 @@
 package com.chototclone.Entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -15,6 +12,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "listings")
 public class Listing extends BaseEntity {
 
@@ -30,6 +28,10 @@ public class Listing extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "category_id")
     private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id")
+    private Brand brand;
 
     @Column(name = "title", length = 255, nullable = false)
     private String title;
