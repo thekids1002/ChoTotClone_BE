@@ -13,4 +13,7 @@ public class DefaultConst {
     public static int VALID_DEL_FLAG = 1;
     public static int USER_NOT_ACTIVE = 0; // User not active with link in email;
     public static int USER_ACTIVE = 1;
+
+
+    public static int EXPRIRED_DATE_LISTING = 10;
 }

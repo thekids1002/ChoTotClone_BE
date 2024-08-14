@@ -31,6 +31,10 @@ public class Listing extends BaseEntity {
     @JoinColumn(name = "category_id", referencedColumnName = "category_id")
     private Category category;
 
+    @ManyToOne
+    @JoinColumn(name = "brand_id", referencedColumnName = "brand_id")
+    private Brand brand;
+
     @Column(name = "title", length = 255, nullable = false)
     private String title;
 
