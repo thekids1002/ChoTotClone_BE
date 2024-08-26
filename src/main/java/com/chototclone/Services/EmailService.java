@@ -9,7 +9,9 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class EmailService {
@@ -66,18 +68,19 @@ public class EmailService {
      * @param token the activation token to include in the email content
      * @return true if the email was sent successfully, false otherwise
      */
-    public boolean sendActivationEmail(String to, String token) {
+    @Async
+    public CompletableFuture<Boolean> sendActivationEmail(String to, String token) {
         String subject = "Kích Hoạt Tài Khoản của Bạn";
         String text = getContentActivationEmail(token);
         try {
             sendSimpleMessage(to, subject, text);
-            return true;
+            return CompletableFuture.completedFuture(true);
         } catch (MailException e) { // Catch specific exception related to email sending
             logger.error("Failed to send email to {}: {}", to, e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Unexpected error occurred while sending email to {}: {}", to, e.getMessage(), e);
         }
-        return false;
+        return CompletableFuture.completedFuture(false);
     }
 
     /**
