@@ -37,7 +37,8 @@ public class UserServiceImpl implements UserService {
      * Creates a new user and sends an activation email.
      *
      * @param user the user to be created
-     * @return true if the user was successfully created and activation email sent, false otherwise
+     * @return true if the user was successfully created and activation email sent,
+     *         false otherwise
      */
     @Transactional
     @Override
@@ -45,15 +46,12 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         String entryToken = StringUtil.generateRandomString(DefaultConst.DEFAULT_NUMBER_CHARACTER_TOKEN);
-        boolean isSentMail = emailService.sendActivationEmail(user.getEmail(), entryToken);
+        emailService.sendActivationEmail(user.getEmail(), entryToken); // send mail is aysnc function
 
-        if (isSentMail) {
-            user.setEntryToken(entryToken);
-            user.setEntryTokenExpire(DateUtil.addDays(DefaultConst.DEFAULT_ENTRY_TOKEN_EXPIRE));
-            User result = userRepository.save(user);
-            return Util.notNull(result.getUserId());
-        }
+        user.setEntryToken(entryToken);
+        user.setEntryTokenExpire(DateUtil.addDays(DefaultConst.DEFAULT_ENTRY_TOKEN_EXPIRE));
+        User result = userRepository.save(user);
+        return Util.notNull(result.getUserId());
 
-        return false;
     }
 }

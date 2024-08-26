@@ -9,6 +9,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -66,6 +67,7 @@ public class EmailService {
      * @param token the activation token to include in the email content
      * @return true if the email was sent successfully, false otherwise
      */
+    @Async
     public boolean sendActivationEmail(String to, String token) {
         String subject = "Kích Hoạt Tài Khoản của Bạn";
         String text = getContentActivationEmail(token);
