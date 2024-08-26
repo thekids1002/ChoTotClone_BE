@@ -8,6 +8,7 @@ import com.chototclone.Payload.Response.Category.CategoryResponse;
 import com.chototclone.Payload.Response.ResponseObject;
 import com.chototclone.Services.CategoryService;
 import com.chototclone.Utils.Message;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,20 +58,20 @@ public class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseObject> getCategoryById(@PathVariable Long id) {
         Optional<Category> categoryOpt = categoryService.getById(id);
-        CategoryResponse categoryResponse;
+        if (!categoryOpt.isPresent()) {
+            throw new EntityNotFoundException("Category not found");
+        }
 
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        String message = Message.FAIL;
+
+        HttpStatus status = HttpStatus.OK;
+        String message = Message.SUCCESS;
         Object data = null;
 
-        if (categoryOpt.isPresent()) {
-            Category category = categoryOpt.get();
-            categoryResponse = convertToResponse(category);
 
-            status = HttpStatus.OK;
-            message = Message.SUCCESS;
-            data = categoryResponse;
-        }
+        Category category = categoryOpt.get();
+        CategoryResponse categoryResponse = convertToResponse(category);
+        data = categoryResponse;
+
 
         ResponseObject responseObject = ResponseObject.builder()
                 .message(message)
@@ -111,16 +112,23 @@ public class CategoryController {
     @PostMapping("/update")
     public ResponseEntity<ResponseObject> updateCategory(@RequestBody UpdateRequest updateRequest) {
         Optional<Category> parentCategory = Optional.empty();
-        if (updateRequest.getParentCategoryId() != DefaultConst.DEFAULT_PARENT_CATEGORY) {
+
+        if (updateRequest.getParentCategoryId() > DefaultConst.DEFAULT_PARENT_CATEGORY) {
             long id = updateRequest.getParentCategoryId();
             parentCategory = categoryService.getById(id);
+        }
+
+        if (!parentCategory.isPresent()) {
+            throw new EntityNotFoundException("Category not found");
         }
 
         Category category = new Category();
         category.setId(updateRequest.getId());
         category.setName(updateRequest.getName());
         category.setParentCategory(parentCategory.orElse(null));
+
         boolean isCreated = categoryService.update(category);
+
         return getReponseObjectResponseEntity(updateRequest, isCreated);
     }
 
@@ -131,8 +139,14 @@ public class CategoryController {
      * @return ResponseEntity containing the response with a message, HTTP status code, and data.
      */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ResponseObject> deleteCategory(@PathVariable Long id) {
-        boolean isDeleted = categoryService.delete(id);
+    public ResponseEntity<Object> deleteCategory(@PathVariable Long id) {
+        Category category = categoryService.getById(id).orElse(null);
+
+        if (category == null) {
+            throw new EntityNotFoundException("Category not exists");
+        }
+
+        boolean isDeleted = categoryService.delete(category);
         HttpStatus httpStatus = isDeleted ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
         String message = isDeleted ? Message.SUCCESS : Message.FAIL;
 
@@ -191,7 +205,7 @@ public class CategoryController {
 
     @GetMapping("/getAllCategory/{parentCategoryId}")
     public ResponseEntity<ResponseObject> getAllByParentCategoryId(@PathVariable Long parentCategoryId) {
-        HttpStatus status = HttpStatus.CREATED;
+        HttpStatus status = HttpStatus.OK;
         String message = Message.SUCCESS;
         ResponseObject reponseObject = ResponseObject.builder()
                 .statusCode(status.value())

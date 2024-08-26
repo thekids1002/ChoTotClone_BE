@@ -48,6 +48,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseObject> handleEntityNotFoundException(EntityNotFoundException ex) {
         ResponseObject responseObject = ResponseObject.builder()
                 .message(ex.getMessage())
+                .data(null)
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .build();
 
@@ -70,5 +71,4 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseObject);
     }
-
 }

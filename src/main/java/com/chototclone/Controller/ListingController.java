@@ -6,12 +6,14 @@ import com.chototclone.Payload.Request.Listing.UpdateRequest;
 import com.chototclone.Payload.Response.ResponseObject;
 import com.chototclone.Services.ListingService;
 import com.chototclone.Utils.Message;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +23,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/listing")
@@ -35,13 +39,28 @@ public class ListingController {
     private ListingService listingService;
 
     @RequestMapping("/getAll")
-    public ResponseEntity<?> getAll() {
-        return null;
+    public ResponseEntity<ResponseObject> getAll() {
+        List<Listing> listings = listingService.findAll();
+
+        ResponseObject responseObject = new ResponseObject();
+        responseObject.setData(listings);
+        responseObject.setStatusCode(HttpStatus.OK.value());
+        responseObject.setMessage(Message.SUCCESS);
+
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
     }
 
     @RequestMapping("/getById")
-    public ResponseEntity<?> getById() {
-        return null;
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        Optional<Listing> listing = listingService.findById(id);
+        if (!listing.isPresent()) {
+            throw new EntityNotFoundException("Listing not found");
+        }
+        ResponseObject responseObject = new ResponseObject();
+        responseObject.setStatusCode(HttpStatus.OK.value());
+        responseObject.setMessage(Message.SUCCESS);
+        responseObject.setData(listing.get());
+        return new ResponseEntity<>(responseObject, HttpStatus.OK);
     }
 
     @RequestMapping("/create")
@@ -118,7 +137,21 @@ public class ListingController {
     }
 
     @RequestMapping("/delete")
-    public ResponseEntity<?> delete() {
+    public ResponseEntity<ResponseObject> delete(Long id) {
+        Optional<Listing> optionalListing = listingService.findById(id);
+
+        if (!optionalListing.isPresent()) {
+            throw new EntityNotFoundException("Listing not found");
+        }
+        boolean isDeleted = listingService.delete(optionalListing.get());
+
+        HttpStatus httpStatus = isDeleted ? HttpStatus.OK : HttpStatus.INTERNAL_SERVER_ERROR;
+        String message = isDeleted ? Message.SUCCESS : Message.INTERNAL_SERVER_ERROR;
+
+        ResponseObject responseObject = new ResponseObject();
+        responseObject.setStatusCode(httpStatus.value());
+        responseObject.setMessage(message);
+        responseObject.setData(null);
         return null;
     }
 }

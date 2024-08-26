@@ -17,7 +17,7 @@ public interface ListingService {
 
     Listing update(MultipartFile[] files,UpdateRequest listing);
 
-    void delete(Long id);
+    boolean delete(Listing listing);
 
 
 }
