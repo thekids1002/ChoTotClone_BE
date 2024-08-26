@@ -211,18 +211,20 @@ public class ListingServiceImpl implements ListingService {
     /**
      * Marks the listing with the given ID as deleted by setting the delFlag to the valid delete flag.
      *
-     * @param id the ID of the listing to delete
      */
     @Override
-    public void delete(Long id) {
-        // Retrieve the listing from the repository by ID
-        Listing listing = listingRepository.getById(id);
+    public boolean delete(Listing listing) {
+        try {
+            // Set the delFlag to the valid delete flag to mark the listing as deleted
+            listing.setDelFlag(DefaultConst.VALID_DEL_FLAG);
 
-        // Set the delFlag to the valid delete flag to mark the listing as deleted
-        listing.setDelFlag(DefaultConst.VALID_DEL_FLAG);
-
-        // Save the updated listing to the repository
-        listingRepository.save(listing);
+            // Save the updated listing to the repository
+            listingRepository.save(listing);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }

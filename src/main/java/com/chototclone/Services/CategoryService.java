@@ -62,5 +62,5 @@ public interface CategoryService {
      * @param id The ID of the category to be deleted.
      * @return true if the category was deleted successfully, otherwise false.
      */
-    boolean delete(long id);
+    boolean delete(Category category);
 }

@@ -75,18 +75,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public boolean delete(long id) {
-        Optional<Category> existingCategoryOpt = categoryRepository.findById(id);
-        if (existingCategoryOpt.isEmpty()) {
-            return false;
-        }
+    public boolean delete(Category category) {
 
-        Category existingCategory = existingCategoryOpt.get();
-        existingCategory.setDelFlag(DefaultConst.VALID_DEL_FLAG);
-        existingCategory.setUpdatedAt(new Date(System.currentTimeMillis()));
+        category.setDelFlag(DefaultConst.VALID_DEL_FLAG);
+        category.setUpdatedAt(new Date(System.currentTimeMillis()));
 
         try {
-            categoryRepository.save(existingCategory);
+            categoryRepository.save(category);
             return true;
         } catch (Exception e) {
 
